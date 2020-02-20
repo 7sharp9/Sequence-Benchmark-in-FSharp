@@ -1,6 +1,9 @@
 ﻿open System
 open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Running
+open System.Collections
+open System.Collections.Generic
+open System.Linq
 
 module Sequence =
 
@@ -9,7 +12,7 @@ module Sequence =
 
     let sequence (list: _ list list) =
         List.foldBack (fun item state -> item |> List.collect (fun x -> state |> List.map (fun xs -> x::xs))) list [[]]
-        
+
     let sequencefold (list: _ list list) =
         List.fold (fun state item ->  [for x in item do for xs in state -> x::xs ]) [[]] list
 
@@ -21,23 +24,31 @@ type ParsingBench() =
     let x = [1; 2; 3; 4]
     let y = [10; 20; 30; 40]
     let z = [100; 200; 300; 400]
-    let all = [x; y; z]
+    let w = [10000; 2000; 3000; 4000]
+    let a = [100000; 20000; 300000; 400000]
+    let b = [100000; 20000; 300000; 400000]
+    let c = [100000; 20000; 300000; 400000]
+    let d = [100000; 20000; 300000; 400000]
+    let e = [100000; 20000; 300000; 400000]
+    let f = [100000; 20000; 300000; 400000]
+    let all6 = [x; y; z; w; a; b; c; d; e; f]
 
     [<Benchmark(Baseline=true)>]
     member __.Sequence() =
-        Sequence.sequence all
+        Sequence.sequence all6
 
     [<Benchmark>]
     member __.Sequence_Comp() =
-        Sequence.sequence_comp all
+        Sequence.sequence_comp all6
 
     [<Benchmark>]
     member __.Sequence_fold() =
-        Sequence.sequencefold all
+        Sequence.sequencefold all6
 
     [<Benchmark>]
     member __.Sequence_fold2() =
-        Sequence.sequencefold2 all
+        Sequence.sequencefold2 all6
+
 
 
 [<EntryPoint>]
