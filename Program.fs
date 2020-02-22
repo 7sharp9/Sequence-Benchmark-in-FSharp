@@ -28,6 +28,13 @@ module Sequence =
             | x :: xs -> seq { for sub in sequence' xs do for item in x -> item :: sub }
         sequence' list |> Seq.toList
 
+    let sequenceRecursiveL (list: 'a list list) =
+        let rec sequence' list =
+            match list with
+            | [] -> [[]]
+            | x :: xs -> [for sub in sequence' xs do for item in x -> item :: sub ]
+        sequence' list 
+
 [<MemoryDiagnoser>]
 type ParsingBench() =
     let x = [1; 2; 3; 4]
@@ -61,6 +68,10 @@ type ParsingBench() =
     [<Benchmark>]
     member __.SequenceRecursive() =
         Sequence.sequenceRecursive all6
+
+    [<Benchmark>]
+    member __.SequenceRecursiveL() =
+        Sequence.sequenceRecursiveL all6
 
 
 
