@@ -13,11 +13,20 @@ module Sequence =
     let sequence (list: _ list list) =
         List.foldBack (fun item state -> item |> List.collect (fun x -> state |> List.map (fun xs -> x::xs))) list [[]]
 
-    let sequencefold (list: _ list list) =
-        List.fold (fun state item ->  [for x in item do for xs in state -> x::xs ]) [[]] list
+    let sequencefold_comp (list: _ list list) =
+        List.fold (fun state item -> 
+            [for x in item do for xs in state -> x::xs ]) [[]] list
 
-    let sequencefold2 (list: _ list list) =
-        List.fold (fun state item -> item |> List.collect (fun x -> state |> List.map (fun xs -> x::xs))) [[]] list
+    let sequencefold (lists: _ list list) =
+        lists
+        |> List.fold (fun acc item -> item |> List.collect (fun x -> acc |> List.map (fun xs -> x::xs))) [[]]
+
+    let sequenceRecursive (list: _ list list) =
+        let rec sequence' list =
+            match list with
+            | [] -> seq { [] }
+            | x :: xs -> seq { for sub in sequence' xs do for item in x -> item :: sub }
+        sequence' list |> Seq.toList
 
 [<MemoryDiagnoser>]
 type ParsingBench() =
@@ -46,8 +55,12 @@ type ParsingBench() =
         Sequence.sequencefold all6
 
     [<Benchmark>]
-    member __.Sequence_fold2() =
-        Sequence.sequencefold2 all6
+    member __.sequencefold_comp() =
+        Sequence.sequencefold_comp all6
+
+    [<Benchmark>]
+    member __.SequenceRecursive() =
+        Sequence.sequenceRecursive all6
 
 
 
